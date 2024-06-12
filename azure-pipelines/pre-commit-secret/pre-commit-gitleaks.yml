@@ -25,7 +25,7 @@ jobs:
       testResultsFiles: '**/junit-report-low-med.xml'
       mergeTestResults: true
       failTaskOnFailedTests: false
-      testRunTitle: 'Trivy - Low and Medium Vulnerabilities'
+      testRunTitle: 'Detect Secret'
     condition: 'always()'
 
   - task: PublishTestResults@2
@@ -34,5 +34,5 @@ jobs:
       testResultsFiles: '**/junit-report-high-crit.xml'
       mergeTestResults: true
       failTaskOnFailedTests: true
-      testRunTitle: 'Trivy - High and Critical Vulnerabilities'
+      testRunTitle: 'Detect Secret'
     condition: 'always()'
