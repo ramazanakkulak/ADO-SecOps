@@ -1,0 +1,32 @@
+parameters:
+  - name: languages
+    displayName: 'Languages for CodeQL analysis'
+    type: string
+    default: ''
+  - name: querysuite
+    displayName: 'CodeQL Query Suite'
+    type: string
+    default: ''
+
+steps:
+- task: AdvancedSecurity-Codeql-Init@1
+  inputs:
+      languages: $(languages)
+      querysuite: '$(querysuite)'
+
+- task: AdvancedSecurity-Codeql-Autobuild@1
+
+- task: AdvancedSecurity-Dependency-Scanning@1
+
+- task: AdvancedSecurity-Codeql-Analyze@1
+  inputs:
+    WaitForProcessing: true
+
+# Add Gating Task
+- task: PowerShell@2
+  displayName: 'Gating pipeline based on Advanced Security alerts'
+  inputs:
+    targetType: filePath
+    filePath: gating.ps1
+  env:
+    MAPPED_ADO_PAT: $(gating)

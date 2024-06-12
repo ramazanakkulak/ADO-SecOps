@@ -1,0 +1,3 @@
+variables:
+  languages: javascript
+  querysuite: 'security-and-quality' #'security-extended'

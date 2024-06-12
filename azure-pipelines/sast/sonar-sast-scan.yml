@@ -1,0 +1,46 @@
+parameters:
+  sonar_organization: ''
+  sonar_projectKey: ''
+  sonar_projectName: ''
+  sonar_projectVersion: ''
+  sonar_sources: ''
+  sonar_reportPaths: ''
+  sonar_X: ''
+  sonar_language: ''
+  sonar_eslintconfigpath: ''
+
+jobs:
+- job: Sonar_SAST_Scan_Job
+  steps:
+  - task: SonarCloudPrepare@1
+    displayName: 'Prepare SonarCloud analysis'
+    inputs:
+      SonarCloud: 'SonarCloud'
+      organization: $(sonar_organization)
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: $(sonar_projectKey)
+      cliProjectName: $(sonar_projectName)
+      cliSources: 'backend'
+      extraProperties: |
+        sonar.sourceEncoding=UTF-8
+        sonar.sources=$(sonar_sources)
+        sonar.javascript.lcov.reportPaths=$(sonar_reportPaths)
+        sonar.X=$(sonar_X)
+        sonar.language=$(sonar_language)
+        sonar.eslint.eslintconfigpath=$(sonar_eslintconfigpath)
+    continueOnError: true
+
+  - task: SonarCloudAnalyze@1
+    displayName: 'Run SonarCloud Analysis'
+    inputs:
+      organization: $(sonar_organization)
+      scannerMode: 'CLI'
+      projectKey: $(sonar_projectKey)
+      projectName: $(sonar_projectName)
+      projectVersion: $(sonar_projectVersion)
+      configMode: 'file'
+
+  - task: SonarCloudPublish@1
+    inputs:
+      pollingTimeoutSec: '300'

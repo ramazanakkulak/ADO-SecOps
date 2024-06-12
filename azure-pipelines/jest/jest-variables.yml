@@ -1,0 +1,3 @@
+variables:
+- name: summaryFileLocation
+  value: '$(System.DefaultWorkingDirectory)/backend/src/coverage/clover.xml'

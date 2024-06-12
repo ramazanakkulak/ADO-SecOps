@@ -1,0 +1,20 @@
+parameters:
+  container_repository: ''
+  buildContext: ''
+  dockerfile: ''
+  containerRegistry: ''
+
+jobs:
+- job: Build_and_push_stage
+  displayName: Build and push stage
+  steps:
+  - task: Docker@2
+    displayName: 'DevSecOps > backend > backend.service'
+    inputs:
+      command: 'buildAndPush'
+      repository: $(container_repository)
+      buildContext: $(buildContext)
+      dockerfile: $(dockerfile)
+      containerRegistry: $(containerRegistry)
+      tags: |
+        latest

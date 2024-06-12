@@ -1,0 +1,54 @@
+parameters:
+  container_repository: ''
+  buildContext: ''
+  dockerfile: ''
+  version_container: ''
+jobs:
+- job: Container_Scanning_BuildPush
+  steps:
+  - task: Docker@2
+    displayName: 'Build Docker image'
+    inputs:
+      command: 'build'
+      buildContext: '$(buildContext)'
+      repository: '$(container_repository)'
+      dockerfile: '$(dockerfile)'
+      tags: |
+        latest
+
+  - task: CmdLine@2
+    displayName: 'DOWNLOAD AND INSTALL AQUASEC TRIVY'
+    inputs:
+      script: |
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+        trivy -v
+        pwd
+
+  - task: CmdLine@2
+    displayName: 'RUN AQUASEC TRIVY SCAN AND COPY TO ARTIFACTS STAGING DIRECTORY'
+    inputs:
+      script: |
+        trivy image --severity LOW,MEDIUM --format template --template "@template/junit.tpl" -o junit-report-low-med.xml $(container_repository):$(version_container)
+        trivy image --severity HIGH,CRITICAL --format template --template "@template/junit.tpl" -o junit-report-high-crit.xml $(container_repository):$(version_container)
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/junit-report-low-med.xml'
+      mergeTestResults: true
+      failTaskOnFailedTests: false
+      testRunTitle: 'Trivy - Low and Medium Vulnerabilities'
+    condition: 'always()'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '**/junit-report-high-crit.xml'
+      mergeTestResults: true
+      failTaskOnFailedTests: true
+      testRunTitle: 'Trivy - High and Critical Vulnerabilities'
+    condition: 'always()'

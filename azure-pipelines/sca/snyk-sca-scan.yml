@@ -1,0 +1,12 @@
+parameters:
+  snyk_Token: ''
+
+jobs:
+- job: Snyk_SCA_Scan_Job
+  steps:
+  - script: |
+      export SNYK_TOKEN=$(snyk_Token)
+      npm install -g snyk
+      cd backend/src
+      snyk test --all-projects
+    displayName: "Integrate SCA scan using Snyk in WP DevSecOps Pipeline"

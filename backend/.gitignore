@@ -1,0 +1,5 @@
+src/node_modules
+src/logs
+.nyc_output
+.scannerwork
+src/coverage

@@ -1,0 +1,21 @@
+variables:
+- name: sonar_organization
+  value: 'medium-test-key'
+- name: sonar_projectKey
+  value: 'medium-test-key_project1'
+- name: sonar_projectName
+  value: 'project1'
+- name: sonar_projectVersion
+  value: '1.0'
+- name: sonar_sources
+  value: 'backend/src'
+- name: sonar_reportPaths
+  value: 'backend/src/coverage/lcov.info'
+- name: sonar_X
+  value: 'backend/src/test-report.xml'
+- name: sonar_language
+  value: 'js'
+- name: sonar_eslintconfigpath
+  value: 'src/eslintrc.json'
+- name: summaryFileLocation
+  value: '$(System.DefaultWorkingDirectory)/backend/src/coverage/clover.xml'

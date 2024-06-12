@@ -1,0 +1,18 @@
+parameters:
+  summaryFileLocation: ''
+
+jobs:
+- job: Jest_Tests_with_coverage
+  displayName: 'JEST Run Tests'
+  steps:
+  - script: |
+      cd backend/src
+      npm install
+      npm test
+    displayName: 'Run tests with coverage'
+
+  - task: PublishCodeCoverageResults@2
+    displayName: 'Publish code coverage results'
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: $(summaryFileLocation)

@@ -1,0 +1,56 @@
+trigger:
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- template: jest/jest-variables.yml
+- template: sast/sonar-sast-variables.yml
+- template: csa/trivyscan-variables.yml
+- template: sca/snyk-sca-variables.yml
+- template: build/node/node-variables.yml
+
+stages:
+- stage: Install_NodeJS
+  jobs:
+  - template: build/node/node-install.yml
+    parameters:
+      node_version: $(node_version)
+
+- stage: JEST_Code_Coverage_Result
+  jobs:
+  - template: jest/code_coverage_backend.yml
+    parameters:
+      summaryFileLocation: $(summaryFileLocation)
+
+- stage: SNYK_SCA_Scan
+  jobs:
+  - template: sca/snyk-sca-scan.yml
+    parameters:
+      snyk_token: $(snyk_token)
+
+- stage: SonarCloud_SAST_Scan
+  jobs:
+  - template: sast/sonar-sast-scan.yml
+    parameters:
+      sonar_organization: $(sonar_organization)
+      sonar_projectKey: $(sonar_projectKey)
+      sonar_projectName: $(sonar_projectName)
+      sonar_projectVersion: $(sonar_projectVersion)
+      sonar_sources: $(sonar_sources)
+      sonar_reportPaths: $(sonar_reportPaths)
+      sonar_X: $(sonar_X)
+      sonar_language: $(sonar_language)
+      sonar_eslintconfigpath: $(sonar_eslintconfigpath)
+
+- stage: Build_Docker_Container_Scanner_Push
+  jobs:
+  - template: csa/trivyscan-docker-build.yml
+    parameters:
+      container_repository: $(container_repository)
+      buildContext: $(buildContext)
+      dockerfile: $(dockerfile)
+      version_container: $(version_container)

@@ -1,0 +1,90 @@
+version: '3.8'
+services:
+  backendservice:
+      build:
+        context: ./../backend
+        dockerfile: ./../backend/backend-service.dockerfile
+      container_name: backend
+      depends_on:
+        - mongodb
+      restart: always
+      ports:
+        - "9000:80"
+      labels:
+        maintainer: ramazanakkulak
+        description: This API provides the contents of the projects prepared by the DevSecOps.
+        project: DevSecOps
+        version: v.0.0.1
+        type: backend
+      environment:
+        - MONGO_HOST=mongodb://admin:password@mongodb:27017
+        - NODE_ENV=production
+      command: [ "npm", "run", "start:prod"]
+      deploy:
+        mode: replicated
+        replicas: 1
+      networks:
+        - backend
+
+  clientservice:
+      build:
+        context: ./../client
+        dockerfile: ./../client/client-service.dockerfile
+      container_name: client
+      depends_on:
+        - mongodb
+        - backendservice
+      restart: always
+      ports:
+        - "3000:80"
+      labels:
+        maintainer: ramazanakkulak
+        description: This frontend provides the contents of the projects prepared by the DevSecOps.
+        project: DevSecOps
+        version: v.0.0.1
+        type: frontend
+      deploy:
+        mode: replicated
+        replicas: 1
+      networks:
+        - backend
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+    networks:
+        - backend
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongoui
+    depends_on:
+      - mongodb
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_AUTH_USERNAME=admin
+      - ME_CONFIG_MONGODB_AUTH_PASSWORD=pass
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+    networks:
+        - backend
+
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  backend:
+    name: backend

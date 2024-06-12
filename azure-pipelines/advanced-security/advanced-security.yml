@@ -1,0 +1,40 @@
+parameters:
+  - name: languages
+    displayName: 'Languages for CodeQL analysis'
+    type: string
+    default: ''
+  - name: querysuite
+    displayName: 'CodeQL Query Suite'
+    type: string
+    default: ''
+
+jobs:
+- job: AdvancedSecurity
+  displayName: 'GitHub Advanced Security'
+  steps:
+
+  - task: AdvancedSecurity-Codeql-Init@1
+    displayName: 'Initialize CodeQL'
+    inputs:
+      languages: $(languages)
+      querysuite: '$(querysuite)'
+
+  - task: AdvancedSecurity-Codeql-Autobuild@1
+    displayName: AutoBuild
+
+  - task: AdvancedSecurity-Dependency-Scanning@1
+    displayName: 'Dependency Scanning'
+
+  - task: AdvancedSecurity-Codeql-Analyze@1
+    displayName: 'Perform CodeQL analysis'
+
+  - task: PowerShell@2
+    displayName: 'Gating pipeline based on Advanced Security alerts'
+    inputs:
+      targetType: filePath
+      filePath: $(System.DefaultWorkingDirectory)/pipeline/gating/gating.ps1
+    env:
+      MAPPED_ADO_PAT: $(gating)
+
+  - task: AdvancedSecurity-Publish@1
+    displayName: 'Publish Results'

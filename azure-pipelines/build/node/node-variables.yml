@@ -1,0 +1,3 @@
+variables:
+- name: node_version
+  value: '18.x'

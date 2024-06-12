@@ -1,0 +1,9 @@
+variables:
+- name: container_repository
+  value: 'wpdevsec-backend.service'
+- name: buildContext
+  value: '$(Build.SourcesDirectory)/backend'
+- name: dockerfile
+  value: 'backend/backend-service.dockerfile'
+- name: version_container
+  value: 'latest'

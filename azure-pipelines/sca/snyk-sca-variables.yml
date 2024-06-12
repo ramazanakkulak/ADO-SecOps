@@ -1,0 +1,4 @@
+variables:
+- group: "SCA_SNYK_SECURE_TOKENS"
+- name: snyk_token
+  value: $[variables.SNYKTOKEN]
